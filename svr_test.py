@@ -1,6 +1,4 @@
-from ctypes import sizeof
 import struct
-import sys
 import socket
 import datetime
 import numpy as np
