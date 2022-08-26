@@ -58,7 +58,7 @@ if __name__ == "__main__":
         "addr": "127.0.0.1",
         "port": 3141,
         "wait": 1,
-        "format": "30f",
+        "format": "30f", # this svr waits 30 * float (i.e. 10 verteices). 
     }
     tcpSvr = TCPSvr(cfg)
     tcpSvr.Open()

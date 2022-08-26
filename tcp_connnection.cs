@@ -126,7 +126,7 @@ namespace gh_tcp_conn
                 DA.SetData(0, "connection err: " + cli.stat);
                 return;
             }
-            DA.SetData(0, String.Format("receive {0} bytes from svr", rcvByteAry.Length));
+            DA.SetData(0, String.Format("receive {0} bytes from svr.", rcvByteAry.Length));
 
             Buffer.BlockCopy(rcvByteAry, 0, rcvData, 0, rcvByteAry.Length);
             var returnedPoint = new Point3d(rcvData[0], rcvData[1], rcvData[2]);
