@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 
 using System.Net.Sockets;
-
+using System.Drawing;
 public class TCPCli
 {
     public string stat;
@@ -67,6 +67,8 @@ namespace gh_tcp_conn
             pManager.AddIntegerParameter("port", "port", "port of the svr", GH_ParamAccess.item, 3141);
             pManager.AddBooleanParameter("run", "run", "pass True to run", GH_ParamAccess.item, false);
             pManager.AddPointParameter("points", "pts", "points for solve", GH_ParamAccess.list, null);
+            // add parameter as Generic Parameter for bitmap input.
+            pManager.AddGenericParameter("bitmap", "bitmap", "bitmap", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -74,9 +76,10 @@ namespace gh_tcp_conn
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddTextParameter("Connection status", "c_stat", "connection status of the Svr", GH_ParamAccess.item);
+            pManager.AddTextParameter("status", "stat", "status", GH_ParamAccess.item);
             pManager.AddPointParameter("Returned point", "p", "Returned point", GH_ParamAccess.item);
             pManager.AddNumberParameter("Returned score", "s", "Returned score", GH_ParamAccess.item);
+
 
         }
 
@@ -87,18 +90,23 @@ namespace gh_tcp_conn
         /// to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            DA.SetData(0, "chk");
+
+            string msg = "";
+            msg += "init\n";
+
             string addr = "";
             if (!DA.GetData(0, ref addr)) return;
             int port = 0;
             if (!DA.GetData(1, ref port)) return;
-            bool run = false;
-            if (!DA.GetData(2, ref run) || !run) return;
+
 
             List<Point3d> points = new List<Point3d>();
             if (!DA.GetDataList(3, points)) return;
 
+            Bitmap bitmap = null;
+            if (!DA.GetData(4, ref bitmap)) return;
 
+            msg += "image size: " + bitmap.Height + ", " + bitmap.Width + "\n";
             // flatten point list to float[]
             List<float> t = new List<float>();
 
@@ -107,6 +115,14 @@ namespace gh_tcp_conn
                 t.Add((float)p.X);
                 t.Add((float)p.Y);
                 t.Add((float)p.Z);
+            }
+
+            bool run = false;
+            if (!DA.GetData(2, ref run) || !run)
+            {
+                msg += "exit (before Communicate)\n";
+                DA.SetData(0, msg);
+                return;
             }
 
             // convert float[] to byte[]
@@ -123,16 +139,17 @@ namespace gh_tcp_conn
             if (!cli.Communicate(byteAry, ref rcvByteAry))
             {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "connection err: " + cli.stat);
-                DA.SetData(0, "connection err: " + cli.stat);
+                msg += "connection err: " + cli.stat + "\n";
+                DA.SetData(0, msg);
                 return;
             }
-            DA.SetData(0, String.Format("receive {0} bytes from svr.", rcvByteAry.Length));
-
+            msg += String.Format("receive {0} bytes from svr.\n", rcvByteAry.Length);
             Buffer.BlockCopy(rcvByteAry, 0, rcvData, 0, rcvByteAry.Length);
             var returnedPoint = new Point3d(rcvData[0], rcvData[1], rcvData[2]);
 
             DA.SetData(1, returnedPoint);
             DA.SetData(2, rcvData[0]);
+            DA.SetData(0, msg);
 
         }
 
