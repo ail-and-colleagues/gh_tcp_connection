@@ -33,7 +33,7 @@ GrasshopperDeveloperSettings
 ```
 2. 次図のようなダイアログが開くので、「Add Folder」より「*soluton dir*>bin」を追加する。これでここにあるaddon（.ghaファイル）が読み込まれるようになる
 
-！[GrasshopperDeveloperSettings](./assets/2022-08-26%20120850.png)
+![GrasshopperDeveloperSettings](./assets/2022-08-26%20120850.png)
 
 1. vsにてプロジェクト（ソリューション: .sln）を開き実装を行う。主に編集するのは下記。
     * `RegisterInputParams`
